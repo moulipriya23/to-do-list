@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" class="transition-colors duration-300">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Advanced To-Do List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-tr from-sky-100 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen flex items-center justify-center p-4 text-gray-800 dark:text-gray-200 transition-colors">
+  <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-blue-200 dark:border-gray-700">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-3xl font-bold text-blue-700 dark:text-blue-300">📝 To-Do List</h1>
+      <button id="toggleDark" class="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded hover:brightness-90">🌙</button>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-2 mb-4">
+      <input type="text" id="taskInput" placeholder="Task..." class="flex-grow p-2 rounded border dark:bg-gray-700 dark:border-gray-600 focus:outline-none"/>
+      <select id="category" class="p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+        <option value="Work">Work</option>
+        <option value="Personal">Personal</option>
+        <option value="Urgent">Urgent</option>
+      </select>
+      <input type="date" id="dueDate" class="p-2 rounded border dark:bg-gray-700 dark:border-gray-600"/>
+      <button id="addTaskBtn" class="bg-blue-600 text-white px-4 rounded hover:bg-blue-700">Add</button>
+    </div>
+
+    <div class="flex justify-between mb-4">
+      <div class="space-x-2">
+        <button class="filter-btn px-2 py-1 rounded bg-blue-100 dark:bg-gray-700" data-filter="all">All</button>
+        <button class="filter-btn px-2 py-1 rounded bg-blue-100 dark:bg-gray-700" data-filter="active">Active</button>
+        <button class="filter-btn px-2 py-1 rounded bg-blue-100 dark:bg-gray-700" data-filter="completed">Completed</button>
+      </div>
+      <div class="space-x-2">
+        <button id="exportBtn" class="text-sm px-2 py-1 rounded bg-green-500 text-white">Export</button>
+        <input type="file" id="importInput" class="hidden" />
+        <button id="importBtn" class="text-sm px-2 py-1 rounded bg-yellow-500 text-white">Import</button>
+      </div>
+    </div>
+
+    <ul id="taskList" class="space-y-4"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const categorySelect = document.getElementById("category");
+    const dueDateInput = document.getElementById("dueDate");
+    const addTaskBtn = document.getElementById("addTaskBtn");
+    const taskList = document.getElementById("taskList");
+    const filterBtns = document.querySelectorAll(".filter-btn");
+    const toggleDark = document.getElementById("toggleDark");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const importInput = document.getElementById("importInput");
+
+    let currentFilter = "all";
+
+    function getStoredTasks() {
+      return JSON.parse(localStorage.getItem("tasks")) || [];
+    }
+
+    function saveTasks(tasks) {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks(filter = "all") {
+      taskList.innerHTML = "";
+      const tasks = getStoredTasks();
+
+      tasks.forEach((task, index) => {
+        if (filter === "active" && task.completed) return;
+        if (filter === "completed" && !task.completed) return;
+
+        const li = document.createElement("li");
+        li.className = `flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border dark:border-gray-600 transition shadow-sm ${task.completed ? "bg-green-50 dark:bg-green-900 text-gray-400 line-through" : "bg-blue-50 dark:bg-gray-700"}`;
+
+        const taskInfo = document.createElement("div");
+        taskInfo.className = "flex flex-col md:flex-row md:items-center flex-grow gap-2";
+
+        const span = document.createElement("span");
+        span.textContent = task.text;
+        span.className = "font-medium cursor-pointer";
+        span.onclick = () => {
+          tasks[index].completed = !tasks[index].completed;
+          saveTasks(tasks);
+          renderTasks(currentFilter);
+        };
+
+        const badge = document.createElement("span");
+        badge.textContent = task.category;
+        badge.className = "text-xs bg-blue-200 text-blue-800 dark:bg-gray-600 dark:text-white px-2 py-1 rounded";
+
+        const due = document.createElement("span");
+        due.textContent = `Due: ${task.dueDate}`;
+        due.className = "text-sm text-gray-500 dark:text-gray-400";
+
+        taskInfo.append(span, badge, due);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "✖";
+        deleteBtn.className = "text-red-500 hover:text-red-700 text-xl font-bold";
+        deleteBtn.onclick = () => {
+          tasks.splice(index, 1);
+          saveTasks(tasks);
+          renderTasks(currentFilter);
+        };
+
+        li.append(taskInfo, deleteBtn);
+        taskList.appendChild(li);
+      });
+    }
+
+    addTaskBtn.onclick = () => {
+      const text = taskInput.value.trim();
+      const category = categorySelect.value;
+      const dueDate = dueDateInput.value;
+
+      if (!text || !dueDate) {
+        alert("Please enter task and due date.");
+        return;
+      }
+
+      const tasks = getStoredTasks();
+      tasks.push({ text, category, dueDate, completed: false });
+      saveTasks(tasks);
+      taskInput.value = "";
+      dueDateInput.value = "";
+      renderTasks(currentFilter);
+    };
+
+    filterBtns.forEach(btn => {
+      btn.onclick = () => {
+        currentFilter = btn.dataset.filter;
+        renderTasks(currentFilter);
+      };
+    });
+
+    toggleDark.onclick = () => {
+      document.documentElement.classList.toggle("dark");
+    };
+
+    exportBtn.onclick = () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(getStoredTasks()));
+      const dlAnchor = document.createElement("a");
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", "todo-tasks.json");
+      dlAnchor.click();
+    };
+
+    importBtn.onclick = () => importInput.click();
+
+    importInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const tasks = JSON.parse(reader.result);
+          if (Array.isArray(tasks)) {
+            saveTasks(tasks);
+            renderTasks(currentFilter);
+          } else {
+            alert("Invalid JSON file");
+          }
+        } catch {
+          alert("Error reading file");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.onload = () => {
+      renderTasks(currentFilter);
+    };
+  </script>
+</body>
+</html>

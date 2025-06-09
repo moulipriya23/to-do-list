@@ -1,0 +1,110 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    background: linear-gradient(to right,#263fe0b7,#46cde4);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  /* Container styling */
+  .container {
+    background: #ffffff;
+    max-width: 400px;
+    width: 100%;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.6s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 28px;
+    color: #333;
+  }
+  
+  /* Input fields */
+  input {
+    width: 100%;
+    padding: 14px 15px;
+    margin: 12px 0;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: 0.3s ease;
+  }
+  
+  input:focus {
+    border-color: #2575fc;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.15);
+  }
+  
+  /* Buttons */
+  button {
+    width: 100%;
+    padding: 14px;
+    background-color: #2575fc;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+  }
+  
+  button:hover {
+    background-color: #1d5cc2;
+  }
+  
+  /* Toggle text */
+  .toggle {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .toggle a {
+    color: #6a61e8;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 5px;
+  }
+  
+  /* Responsive tweaks */
+  @media (max-width: 480px) {
+    .container {
+      padding: 30px 20px;
+    }
+  
+    h2 {
+      font-size: 24px;
+    }
+  
+    input, button {
+      font-size: 14px;
+    }
+  }
+  
